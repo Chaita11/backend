@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "../model/User.js";
 import jwt from "jsonwebtoken";
 import Data from "../model/Data.js";
+import cookieParser from "cookie-parser";
 
 export const getEventData = async (req, res, next) => {
   try {
@@ -201,6 +202,9 @@ export const login = async (req, res) => {
       },
       jwtSecret
     );
+    res.cookie("sessionCookie", jwtToken, {
+      httpOnly: false,
+    });
 
     return res.status(200).json({
       token: jwtToken,
@@ -214,5 +218,30 @@ export const login = async (req, res) => {
       message: "Something went wrong",
       success: false,
     });
+  }
+};
+
+export const checkSession = async (req, res) => {
+  const sessionCookie = req.cookies.sessionCookie;
+
+  try {
+    // Verify the JWT token
+    const decoded = jwt.verify(sessionCookie, process.env.JWT_SECRET);
+
+    if (!decoded) {
+      return res.status(400).json({
+        message: "Session not found!",
+        success: false,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Sucessfull!",
+      success: true,
+      data: decoded,
+    });
+  } catch (err) {
+    // If the token is invalid or expired, return null
+    return null;
   }
 };

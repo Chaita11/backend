@@ -3,20 +3,31 @@ import mongoose from "mongoose";
 import router from "./routes/user-routes.js";
 import cors from "cors";
 import * as dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import requireAuth from "./middleware/authMiddleware.js";
 dotenv.config();
 
 const app = express();
 
-app.use(cors());
+const corsOptions = {
+  credentials: true,
+  origin: true,
+};
+
+app.use(cors(corsOptions));
+
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", req.headers.origin);
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
 app.use(express.json());
-
+app.use(cookieParser());
 app.use("/api/user", router);
-// app.use(express.static(path.join(__dirname,"/my-app/.next")))
-// app.get("*", function(req,res)=>{
-//   res.sendFile(path.join(__dirname))
-// })
-
-//static files
 
 mongoose
   .connect(process.env.MONGO_URL)
