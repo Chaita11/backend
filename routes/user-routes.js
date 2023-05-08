@@ -6,11 +6,12 @@ import {
   signup,
   addEventData,
   getSingleEvent,
-  checkSession, //   data,
+  checkSession,
+  dashboard,
+  getDashboardData, //   data,
   //   getAllData,
 } from "../controllers/user-controller.js";
 import Joi from "@hapi/joi";
-import requireAuth from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -22,5 +23,7 @@ router.get("/get-events", getEventData);
 router.post("/add-event", addEventData);
 router.get("/get-event/:eventId", getSingleEvent);
 router.get("/checkSession", checkSession);
+router.post("/dashboard", dashboard);
+router.get("/get-dashboard", getDashboardData);
 
 export default router;

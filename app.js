@@ -4,7 +4,6 @@ import router from "./routes/user-routes.js";
 import cors from "cors";
 import * as dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import requireAuth from "./middleware/authMiddleware.js";
 dotenv.config();
 
 const app = express();

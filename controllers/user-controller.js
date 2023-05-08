@@ -3,6 +3,53 @@ import User from "../model/User.js";
 import jwt from "jsonwebtoken";
 import Data from "../model/Data.js";
 import cookieParser from "cookie-parser";
+import Dashboard from "../model/Dashboard.js";
+
+export const dashboard = async (req, res, next) => {
+  try {
+    const {
+      ve,
+      webd,
+      code,
+      digitalI,
+      photography,
+      keynote,
+      gaming,
+      gd,
+      surprise,
+      quiz,
+    } = req.body;
+
+    const newStudent = new Dashboard({
+      ve,
+      webd,
+      code,
+      digitalI,
+      photography,
+      keynote,
+      gaming,
+      gd,
+      surprise,
+      quiz,
+    });
+    await newStudent.save();
+    return res.status(200).json({
+      message: "Added!",
+    });
+  } catch (error) {
+    return console.log(error);
+  }
+};
+
+export const getDashboardData = async (req, res, next) => {
+  try {
+    const dashboardStudents = await Dashboard.find();
+
+    return res.status(200).json(dashboardStudents);
+  } catch (error) {
+    return console.log(error);
+  }
+};
 
 export const getEventData = async (req, res, next) => {
   try {
