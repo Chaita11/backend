@@ -3,6 +3,11 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const dashboardSchema = new Schema({
+  team: {
+    type: String,
+    unique: true,
+    required: true,
+  },
   ve: {
     type: String,
     required: true,
@@ -22,6 +27,7 @@ const dashboardSchema = new Schema({
   },
   photography: {
     type: String,
+    required: true,
   },
   keynote: {
     type: String,
@@ -42,6 +48,9 @@ const dashboardSchema = new Schema({
   quiz: {
     type: String,
     required: true,
+  },
+  id: {
+    type: String,
   },
 });
 export default mongoose.model("Dashboard", dashboardSchema);

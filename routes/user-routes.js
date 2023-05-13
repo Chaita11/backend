@@ -8,22 +8,36 @@ import {
   getSingleEvent,
   checkSession,
   dashboard,
-  getDashboardData, //   data,
+  getDashboardData,
+  logout, //   data,
   //   getAllData,
 } from "../controllers/user-controller.js";
 import Joi from "@hapi/joi";
+import { checkAdminAccess } from "../middleware/admin.middleware.js";
+import { checkUserAccess } from "../middleware/user.middleware.js";
 
 const router = express.Router();
 
 //VALIDATION
-router.get("/", getAllUser);
+
+/*
+public routes
+*/
 router.post("/signup", signup);
 router.post("/login", login);
 router.get("/get-events", getEventData);
-router.post("/add-event", addEventData);
-router.get("/get-event/:eventId", getSingleEvent);
-router.get("/checkSession", checkSession);
-router.post("/dashboard", dashboard);
-router.get("/get-dashboard", getDashboardData);
 
+router.get("/checkSession", checkSession);
+/*
+admin routes
+*/
+router.get("/", checkAdminAccess, getAllUser);
+router.post("/add-event", checkAdminAccess, addEventData);
+router.get("/get-dashboard", checkAdminAccess, getDashboardData);
+/*
+user routes
+*/
+router.get("/get-event/:eventId", checkUserAccess, getSingleEvent);
+router.post("/dashboard", checkUserAccess, dashboard);
+router.post("/logout", checkUserAccess, logout);
 export default router;

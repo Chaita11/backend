@@ -31,6 +31,11 @@ const userSchema = new Schema({
     required: true,
     min: 6,
   },
+  accountType: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
 });
 export default mongoose.model("User", userSchema);
 

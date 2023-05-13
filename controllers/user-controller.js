@@ -6,38 +6,59 @@ import cookieParser from "cookie-parser";
 import Dashboard from "../model/Dashboard.js";
 
 export const dashboard = async (req, res, next) => {
-  try {
-    const {
-      ve,
-      webd,
-      code,
-      digitalI,
-      photography,
-      keynote,
-      gaming,
-      gd,
-      surprise,
-      quiz,
-    } = req.body;
+  const token = req.cookies.sessionCookie;
 
-    const newStudent = new Dashboard({
-      ve,
-      webd,
-      code,
-      digitalI,
-      photography,
-      keynote,
-      gaming,
-      gd,
-      surprise,
-      quiz,
-    });
-    await newStudent.save();
-    return res.status(200).json({
-      message: "Added!",
-    });
+  const {
+    team,
+    ve,
+    webd,
+    code,
+    digitalI,
+    photography,
+    keynote,
+    gaming,
+    gd,
+    surprise,
+    quiz,
+    id,
+  } = req.body;
+
+  let existingTeam;
+  try {
+    existingTeam = await Dashboard.findOne({ team });
   } catch (error) {
     return console.log(error);
+  }
+  if (existingTeam) {
+    res.status(400).json({ message: "Team already exists!" });
+  }
+  const registration = new Dashboard({
+    team: req.body.team,
+    ve: req.body.ve,
+    webd: req.body.webd,
+    code: req.body.code,
+    digitalI: req.body.digitalI,
+    photography: req.body.photography,
+    keynote: req.body.keynote,
+    gaming: req.body.gaming,
+    gd: req.body.gd,
+    surprise: req.body.surprise,
+    quiz: req.body.quiz,
+    id: token,
+  });
+  try {
+    await registration.save();
+    return res.status(200).json({
+      message: "Registration successful!",
+      success: true,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(400).json({
+      message: "Some Error Occurred",
+      success: false,
+    });
   }
 };
 
@@ -288,7 +309,21 @@ export const checkSession = async (req, res) => {
       data: decoded,
     });
   } catch (err) {
-    // If the token is invalid or expired, return null
+    console.log(err);
+    return res.status(400).json({
+      message: "Some error occured!",
+      success: false,
+    });
+  }
+};
+
+export const logout = async (req, res) => {
+  const decoded = jwt.verify(sessionCookie, process.env.JWT_SECRET);
+
+  try {
+    res.clearCookie("sessionCookie");
+    res.redirect("/login"); // Redirect to the login page or any other desired page
+  } catch (error) {
     return null;
   }
 };
