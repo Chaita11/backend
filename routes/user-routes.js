@@ -26,7 +26,7 @@ public routes
 router.post("/signup", signup);
 router.post("/login", login);
 router.get("/get-events", getEventData);
-
+router.get("/get-events/:eventId", getSingleEvent);
 router.get("/checkSession", checkSession);
 /*
 admin routes
@@ -37,7 +37,6 @@ router.get("/get-dashboard", checkAdminAccess, getDashboardData);
 /*
 user routes
 */
-router.get("/get-event/:eventId", checkUserAccess, getSingleEvent);
 router.post("/dashboard", checkUserAccess, dashboard);
 router.post("/logout", checkUserAccess, logout);
 export default router;
