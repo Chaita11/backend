@@ -12,10 +12,13 @@ const dataSchema = new Schema({
     type: String,
     required: true,
   },
-  body: {
-    type: String,
-    required: true,
-  },
+  body: [
+    {
+      para: {
+        type: String,
+      },
+    },
+  ],
   btn: {
     type: String,
     required: true,
@@ -57,11 +60,9 @@ const dataSchema = new Schema({
     {
       link: {
         type: String,
-        required: true,
       },
       url: {
         type: String,
-        required: true,
       },
     },
   ],
