@@ -1,205 +1,28 @@
 import bcrypt from "bcryptjs";
 import User from "../model/User.js";
 import jwt from "jsonwebtoken";
-import Data from "../model/Data.js";
-import cookieParser from "cookie-parser";
-import Dashboard from "../model/Dashboard.js";
-
-export const dashboard = async (req, res, next) => {
-  const token = req.cookies.sessionCookie;
-
-  const {
-    team,
-    ve,
-    webd,
-    code,
-    digitalI,
-    photography,
-    keynote,
-    gaming,
-    gd,
-    surprise,
-    quiz,
-    id,
-  } = req.body;
-
-  let existingTeam;
-  try {
-    existingTeam = await Dashboard.findOne({ team });
-  } catch (error) {
-    return console.log(error);
-  }
-  if (existingTeam) {
-    res.status(400).json({ message: "Team already exists!" });
-  }
-  const registration = new Dashboard({
-    team: req.body.team,
-    ve: req.body.ve,
-    webd: req.body.webd,
-    code: req.body.code,
-    digitalI: req.body.digitalI,
-    photography: req.body.photography,
-    keynote: req.body.keynote,
-    gaming: req.body.gaming,
-    gd: req.body.gd,
-    surprise: req.body.surprise,
-    quiz: req.body.quiz,
-    id: token,
-  });
-  try {
-    await registration.save();
-    return res.status(200).json({
-      message: "Registration successful!",
-      success: true,
-    });
-  } catch (error) {
-    console.log(error);
-
-    return res.status(400).json({
-      message: "Some Error Occurred",
-      success: false,
-    });
-  }
-};
-
-export const getDashboardData = async (req, res, next) => {
-  try {
-    const dashboardStudents = await Dashboard.find();
-
-    return res.status(200).json(dashboardStudents);
-  } catch (error) {
-    return console.log(error);
-  }
-};
-
-export const getEventData = async (req, res, next) => {
-  try {
-    const events = await Data.find();
-
-    return res.status(200).json(events);
-  } catch (error) {
-    return console.log(error);
-  }
-};
-
-export const addEventData = async (req, res, next) => {
-  try {
-    const {
-      title,
-      subheading,
-      body,
-      btn,
-      img,
-      head,
-      domain,
-      team,
-      participants,
-      pf,
-      icons,
-      id,
-    } = req.body;
-
-    const newEvent = new Data({
-      title,
-      subheading,
-      body,
-      btn,
-      img,
-      head,
-      domain,
-      team,
-      participants,
-      pf,
-      icons,
-      id,
-    });
-    await newEvent.save();
-    return res.status(200).json({
-      message: "Added new event",
-    });
-  } catch (error) {
-    return console.log(error);
-  }
-};
-
-export const getSingleEvent = async (req, res, next) => {
-  try {
-    const { eventId } = req.params;
-
-    if (!eventId) {
-      return res.status(404).json({
-        message: "ID not provided",
-      });
-    }
-
-    const event = await Data.findOne({
-      _id: eventId,
-    });
-
-    if (!event) {
-      return res.status(404).json({
-        message: "Event not found",
-      });
-    }
-
-    return res.status(200).json(event);
-  } catch (error) {
-    console.log(error);
-
-    return res.status(400).json({
-      message: "Event not found, please try again",
-    });
-  }
-};
-
-// export const data = async (req, res, next) => {
-//   const { subheading, body, btn, img, head, domain, team, pf, icons, id } =
-//     req.body;
-// };
-
-export const getAllUser = async (req, res, next) => {
-  let users;
-  try {
-    users = await User.find();
-  } catch (error) {
-    return console.log(error);
-  }
-
-  if (!users) {
-    return res.status(404).json({ message: "No Users Found" });
-  }
-  return res.status(200).json({ users });
-};
+import Question from "../model/Question.js";
 
 export const signup = async (req, res, next) => {
-  const {
-    schoolname,
-    email,
-    teamname,
-    teachername,
-    studentname,
-    password,
-    token: generateToken,
-  } = req.body;
+  const { email, schoolname, username, name, password } = req.body;
 
   let existingUser;
   try {
     existingUser = await User.findOne({ email });
   } catch (error) {
-    return console.log(error);
+    return res.status(400);
   }
   if (existingUser) {
-    res.status(400).json({ message: "User already exists!" });
+    return res.status(400).json({ message: "User already exists!" });
   }
 
   const hashedPassword = bcrypt.hashSync(password);
 
   const user = new User({
-    schoolname,
-    teamname,
-    teachername,
-    studentname,
     email,
+    schoolname,
+    username,
+    name,
     password: hashedPassword,
   });
   try {
@@ -219,9 +42,9 @@ export const signup = async (req, res, next) => {
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    if (email === null) {
+    if (username === null) {
       return res.status(400).json({
         message: "Email is required",
       });
@@ -234,7 +57,7 @@ export const login = async (req, res) => {
     }
 
     const userExists = await User.findOne({
-      email,
+      username,
     });
 
     if (!userExists) {
@@ -265,7 +88,7 @@ export const login = async (req, res) => {
       {
         email: userExists.email,
         schoolname: userExists.schoolname,
-        teamname: userExists.teamname,
+        username: userExists.username,
         _id: userExists._id,
       },
       jwtSecret
@@ -317,6 +140,38 @@ export const checkSession = async (req, res) => {
   }
 };
 
+export const leaderboard = async (req, res, next) => {
+  try {
+    const users = await User.find({}, "username points").sort({ points: -1 });
+    return res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+export const getLevelQuestion = async (req, res, next) => {
+  try {
+    const { userID } = res.locals;
+    const loggedInUser = await User.findById(userID);
+    console.log(loggedInUser);
+
+    if (!loggedInUser) {
+      return res.status(400).json({ message: "User not found!" });
+    }
+    const userLevel = loggedInUser.level;
+    console.log(userLevel);
+    // const questionLevel = Question.findOne(level: userLevel);
+    console.log(questionLevel);
+    console;
+    // const users = await User.find({}, { answer: 0 }).sort({ points: -1 });
+    // return res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export const logout = async (req, res) => {
   const decoded = jwt.verify(sessionCookie, process.env.JWT_SECRET);
 
@@ -324,6 +179,10 @@ export const logout = async (req, res) => {
     res.clearCookie("sessionCookie");
     res.redirect("/login"); // Redirect to the login page or any other desired page
   } catch (error) {
-    return null;
+    console.log(err);
+    return res.status(400).json({
+      message: "Some error occured!",
+      success: false,
+    });
   }
 };

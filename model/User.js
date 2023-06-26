@@ -13,29 +13,39 @@ const userSchema = new Schema({
     required: true,
     unique: true,
   },
-  teamname: {
+  username: {
     type: String,
     required: true,
+    unique: true,
   },
 
-  teachername: {
-    type: String,
-    required: true,
-  },
-  studentname: {
-    type: String,
-    required: true,
-  },
   password: {
     type: String,
     required: true,
-    min: 6,
   },
-  accountType: {
+  name: {
     type: String,
-    enum: ["user", "admin"],
-    default: "user",
+    required: true,
   },
+  points: {
+    type: Number,
+    default: 0,
+  },
+  level: {
+    type: Number,
+    default: 0,
+  },
+  submissions: [
+    {
+      answer: String,
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+      isCorrect: Boolean,
+      points: Number,
+    },
+  ],
 });
 export default mongoose.model("User", userSchema);
 

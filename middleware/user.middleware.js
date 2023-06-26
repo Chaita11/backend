@@ -25,7 +25,7 @@ export const checkUserAccess = (req, res, next) => {
         success: false,
       });
     }
-
+    res.locals.userID = userID;
     next();
   } catch (err) {
     console.log(err);

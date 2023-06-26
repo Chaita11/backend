@@ -1,15 +1,11 @@
 import express from "express";
 import {
-  getAllUser,
-  getEventData,
   login,
   signup,
-  addEventData,
-  getSingleEvent,
   checkSession,
-  dashboard,
-  getDashboardData,
-  logout, //   data,
+  logout,
+  leaderboard,
+  getLevelQuestion, //   data,
   //   getAllData,
 } from "../controllers/user-controller.js";
 import Joi from "@hapi/joi";
@@ -25,18 +21,12 @@ public routes
 */
 router.post("/signup", signup);
 router.post("/login", login);
-router.get("/get-events", getEventData);
-router.get("/get-events/:eventId", getSingleEvent);
 router.get("/checkSession", checkSession);
-/*
-admin routes
-*/
-router.get("/", checkAdminAccess, getAllUser);
-router.post("/add-event", checkAdminAccess, addEventData);
-router.get("/get-dashboard", checkAdminAccess, getDashboardData);
+router.get("/leaderboard", leaderboard);
+
 /*
 user routes
 */
-router.post("/dashboard", checkUserAccess, dashboard);
+router.get("/getUserLevel", checkUserAccess, getLevelQuestion);
 router.post("/logout", checkUserAccess, logout);
 export default router;
